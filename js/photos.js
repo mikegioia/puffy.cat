@@ -262,4 +262,10 @@ var photos = [{
         en: "",
         ca: ""
     }
+}, {
+    file: "045.jpg",
+    desc: {
+        en: "",
+        ca: ""
+    }
 }];
