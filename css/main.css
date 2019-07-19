@@ -1,27 +1,27 @@
 html, body {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   background: #000;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
 #photo {
-  min-height: 100%;
   background: #000 no-repeat center center fixed;
   background-size: cover;
+  min-height: 100%;
 }
 
 #follow {
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  z-index: 9999;
-  margin: 0;
   border-radius: 10px;
+  bottom: 0;
   color: #fff;
-  padding: 10px;
-  text-decoration: none;
-  font-weight: bold;
   font-size: 16px;
+  font-weight: bold;
+  margin: 0;
+  padding: 10px;
+  position: fixed;
+  right: 0;
+  text-decoration: none;
+  z-index: 9999;
 }

@@ -1,23 +1,278 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Puffy Cat</title>
+  <title>Puffy Cat</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="description" content="Puffy Cat, t'estimo">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="css/normalize.css">
+  <style type="text/css">
+    html,
+    body {
+      background: #000;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+    }
 
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <meta name="description" content="Puffy Cat">
+    html {
+      font-family: sans-serif; /* 1 */
+      -ms-text-size-adjust: 100%; /* 2 */
+      -webkit-text-size-adjust: 100%; /* 2 */
+    }
 
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" href="css/main.css">
+    @-webkit-keyframes fadein {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes fadein {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    @-webkit-keyframes fadeout {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes fadeout {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .display {
+      opacity: 1 !important;
+    }
+
+    .hide {
+      display: none !important;
+    }
+
+    .fade-in {
+      -moz-animation: fadein 1s linear;
+      -webkit-animation: fadein 1s linear;
+      animation: fadein 1s linear;
+    }
+
+    .fade-out {
+      -moz-animation: fadeout 1s linear;
+      -webkit-animation: fadeout 1s linear;
+      animation: fadeout 1s linear;
+    }
+
+    .photo {
+      display: block;
+      height: 100vh;
+      object-fit: cover;
+      object-position: center;
+      opacity: 0;
+      width: 100%;
+    }
+
+    body.fit .photo {
+      max-height: 100%;
+      object-fit: contain;
+      width: 100%;
+    }
+
+    #stage {
+      height: 100%;
+      overflow: hidden;
+      position: static;
+      width: 100%;
+      z-index: 1;
+    }
+
+    #controls {
+      bottom: 1rem;
+      color: #fff;
+      height: 8rem;
+      right: 1rem;
+      position: fixed;
+      width: 16rem;
+      z-index: 2;
+    }
+
+    #controls a {
+      background-color: #000;
+      color: #fff;
+      display: block;
+      float: right;
+      font-size: 3rem;
+      height: 4rem;
+      outline: none;
+      overflow: hidden;
+      padding: 1.5rem;
+      text-decoration: none;
+      text-align: center;
+      width: 4rem;
+    }
+
+    #controls a:hover,
+    #controls a:active {
+      background-color: #fff;
+      color: #000;
+    }
+
+    #play {
+      font-size: 4.75rem;
+      line-height: 0.7;
+    }
+
+    #pause {
+      left: 0.3125rem;
+      position: relative;
+      top: 0.1875rem;
+    }
+
+    #shrink,
+    #expand {
+      font-size: 4.75rem;
+      line-height: 0.9375;
+    }
+
+    #toggle-view {
+      margin-right: 1rem;
+    }
+  </style>
 </head>
 <body>
-    <div id="photo"></div>
-    <div id="lang"></div>
+  <div id="stage">
+    <img id="photo-1" class="photo" src="images/044.jpg" onload="display()">
+  </div>
+  <div id="controls" class="controls">
+    <a id="toggle-play" href="javascript:;" onclick="togglePlay()">
+      <span id="pause">&#9612;&#9612;</span>
+      <span id="play" class="hide">&#9654;</span>
+    </a>
+    <a id="toggle-view" href="javascript:;" onclick="toggleView()">
+      <span id="shrink">&#8690;</span>
+      <span id="expand" class="hide">&#8689;</span>
+    </a>
+  </div>
+  <script type="text/javascript">
+    var i = 1;
+    var index = 1;
+    var shuffled = [];
+    var paused = false;
+    var photoCount = 45;
+    var expanded = true;
+    var isRunning = false;
+    var nextLoaded = true;
+    var currentFinished = true;
 
-    <script src="js/jquery-1.11.1.min.js"></script>
-    <script src="js/photos.js"></script>
-    <script src="js/main.js"></script>
+    function display () {
+      var $photo;
+
+      if (!nextLoaded || !currentFinished || paused || isRunning) {
+        return;
+      }
+
+      isRunning = true;
+      nextLoaded = false;
+      currentFinished = false;
+
+      hideAllDisplayed();
+
+      // Fade a la primera foto
+      $photo = document.getElementById('photo-' + index);
+      $photo.className = 'photo fade-in';
+
+      createNextPhoto();
+      
+      // Mostra-ho després d’un segon
+      setTimeout(function () {
+        $photo.className = 'photo display';
+      }, 990); // evitar el parpelleig
+
+      // Després de tres segons de pantalla, s'esvaeix
+      setTimeout(function () {
+        isRunning = false;
+
+        if (paused) {
+          currentFinished = true;
+          return;
+        }
+
+        $photo.className = 'photo fade-out';
+      
+        // Després d'un segon, mostra la següent foto
+        setTimeout(function () {
+          $photo.className = 'photo hide';
+          currentFinished = true;
+          display();
+        }, 1000);
+      }, 4000);
+    }
+
+    function hideAllDisplayed () {
+      var j;
+      var elements = document.getElementsByClassName('photo display');
+
+      for (j in elements) {
+        elements[j].className = 'photo hide';
+      }
+    }
+
+    function createNextPhoto () {
+      var nextSrc = getNextImageSrc(); // augmenta index
+      var $nextPhoto = document.createElement('img');
+
+      $nextPhoto.onload = imageLoaded;
+      $nextPhoto.className = 'photo hide';
+      $nextPhoto.id = 'photo-' + index;
+      $nextPhoto.src = nextSrc;
+
+      document.getElementById('stage').appendChild($nextPhoto);
+    }
+
+    function getNextImageSrc () {
+      index++;
+
+      if (index > photoCount) {
+        index = 1;
+      }
+
+      return shuffled[ index - 1 ];
+    }
+
+    function imageLoaded () {
+      nextLoaded = true;
+      display();
+    }
+
+    function togglePlay () {
+      paused = !paused;
+      document.getElementById('pause').className = paused ? 'hide' : '';
+      document.getElementById('play').className = paused ? '' : 'hide';
+
+      if (!paused) {
+        display();
+      }
+    }
+
+    function toggleView () {
+      expanded = !expanded;
+      document.getElementById('expand').className = expanded ? 'hide' : '';
+      document.getElementById('shrink').className = expanded ? '' : 'hide';
+      document.body.className = expanded ? '' : 'fit';
+
+    }
+
+    // Carregueu les imatges
+    for (i; i <= photoCount; i++) {
+      shuffled.push('images/' + String(i).padStart(3, '0') + '.jpg');
+    }
+
+    // Aleatoritzar
+    shuffled.sort(function () {
+      return Math.random() - 0.5;
+    });
+  </script>
 </body>
 </html>
